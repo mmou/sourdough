@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#define DUP_ACK_COUNT  3
+
 /* Congestion controller interface */
 
 class Controller
@@ -11,6 +13,9 @@ private:
   bool debug_; /* Enables debugging output */
 
   /* Add member variables here */
+  uint64_t last_ack_recved_;
+  uint64_t dup_ack_count_;
+  unsigned int window_size;
 
 public:
   /* Public interface for the congestion controller */
@@ -18,10 +23,12 @@ public:
      the call site as well (in sender.cc) */
 
   /* Default constructor */
-  Controller( const bool debug );
+  Controller( const bool debug, uint64_t dup_ack_count);
 
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
+
+  void update_window_size()
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
