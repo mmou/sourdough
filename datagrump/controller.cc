@@ -8,11 +8,10 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-{
-  last_ack_recved_ = 0;
-  dup_ack_count_ = 0;
-  window_size = 50;
-}
+  , last_ack_recved_(0)
+  , dup_ack_count_(0)
+  , the_window_size(50)
+{ }
 
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
@@ -21,14 +20,14 @@ unsigned int Controller::window_size( void )
   //unsigned int the_window_size = 50;
 
   if ( debug_ ) {
-    cerr << "At time " << timestamp_ms() << " window size is " << window_size << endl;
+    cerr << "At time " << timestamp_ms() << " window size is " << the_window_size << endl;
   }
 
-  return window_size;
+  return the_window_size;
 }
 
 
-void Controller:update_window(uint64_t sequence_number_acked) {
+void Controller::update_window(uint64_t sequence_number_acked) {
 
     if ( debug_ ) {
       cerr << "UPDATE_WINDOW last_ack_recved_: " << last_ack_recved_ << ","
@@ -36,13 +35,13 @@ void Controller:update_window(uint64_t sequence_number_acked) {
     }
 
     if (sequence_number_acked == last_ack_recved_) {
-      dup_ack_count_ ++;
+      dup_ack_count_++;
       if (dup_ack_count_ >= DUP_ACK_COUNT) {
-        window_size /= 2;
+        the_window_size = the_window_size/2;
         dup_ack_count_ = 0;
       }
     } else if (sequence_number_acked > last_ack_recved_) {
-      window_size ++;
+      the_window_size++;
       last_ack_recved_ = sequence_number_acked;
       dup_ack_count_ = 0;
     } 
@@ -83,7 +82,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 	 << endl;
   }
 
-  Controller:update_window(sequence_number_acked);
+  update_window(sequence_number_acked);
 }
 
 /* How long to wait (in milliseconds) if there are no acks

@@ -15,7 +15,7 @@ private:
   /* Add member variables here */
   uint64_t last_ack_recved_;
   uint64_t dup_ack_count_;
-  unsigned int window_size;
+  unsigned int the_window_size;
 
 public:
   /* Public interface for the congestion controller */
@@ -23,12 +23,13 @@ public:
      the call site as well (in sender.cc) */
 
   /* Default constructor */
-  Controller( const bool debug, uint64_t dup_ack_count);
+  Controller( const bool debug);
 
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
 
-  void update_window_size()
+  /* Update window size */
+  void update_window(uint64_t sequence_number_acked);
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
