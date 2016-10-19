@@ -8,20 +8,34 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-{}
+  , the_window_size(20)
+{ }
 
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
   /* Default: fixed window size of 100 outstanding datagrams */
-  unsigned int the_window_size = 50;
+  //unsigned int the_window_size = 50;
 
   if ( debug_ ) {
-    cerr << "At time " << timestamp_ms()
-	 << " window size is " << the_window_size << endl;
+    cerr << "At time " << timestamp_ms() << " window size is " << the_window_size << endl;
   }
 
   return the_window_size;
+}
+
+
+void Controller::update_window(uint64_t rtt) {
+
+    if ( debug_ ) {
+      cerr << "UPDATE_WINDOW rtt: " << rtt << ", estimated_rtt: " << estimated_rtt;
+    }
+
+    if (rtt > MAX_DELAY_MS) {
+      the_window_size = the_window_size/2;
+    } else {
+      the_window_size++;
+    }
 }
 
 /* A datagram was sent */
@@ -57,6 +71,8 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
 	 << endl;
   }
+
+  update_window(timestamp_ack_received - send_timestamp_acked);
 }
 
 /* How long to wait (in milliseconds) if there are no acks

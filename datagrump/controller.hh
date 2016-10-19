@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#define MAX_DELAY_MS  10
+
 /* Congestion controller interface */
 
 class Controller
@@ -11,6 +13,7 @@ private:
   bool debug_; /* Enables debugging output */
 
   /* Add member variables here */
+  unsigned int the_window_size;
 
 public:
   /* Public interface for the congestion controller */
@@ -18,10 +21,13 @@ public:
      the call site as well (in sender.cc) */
 
   /* Default constructor */
-  Controller( const bool debug );
+  Controller( const bool debug);
 
   /* Get current window size, in datagrams */
   unsigned int window_size( void );
+
+  /* Update window size */
+  void update_window(uint64_t rtt);
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
