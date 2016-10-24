@@ -28,7 +28,7 @@ unsigned int Controller::window_size( void )
 void Controller::update_window(uint64_t rtt) {
 
     if ( debug_ ) {
-      cerr << "UPDATE_WINDOW rtt: " << rtt << ", estimated_rtt: " << estimated_rtt;
+      cerr << "UPDATE_WINDOW rtt: " << rtt;
     }
 
     if (rtt > MAX_DELAY_MS) {

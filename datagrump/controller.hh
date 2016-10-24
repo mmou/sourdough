@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#define MAX_DELAY_MS  10
+#define MAX_DELAY_MS  900
 
 /* Congestion controller interface */
 
