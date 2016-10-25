@@ -8,7 +8,6 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , last_ack_recved_(0)
   , dup_ack_count_(0)
   , the_window_size(50)
 { }
@@ -16,8 +15,6 @@ Controller::Controller( const bool debug )
 /* Get current window size, in datagrams */
 unsigned int Controller::window_size( void )
 {
-  /* Default: fixed window size of 100 outstanding datagrams */
-  //unsigned int the_window_size = 50;
 
   if ( debug_ ) {
     cerr << "At time " << timestamp_ms() << " window size is " << the_window_size << endl;
@@ -27,26 +24,26 @@ unsigned int Controller::window_size( void )
 }
 
 
-void Controller::update_window(uint64_t sequence_number_acked) {
+void Controller::update_window(uint64_t sequence_number_acked, uint64_t ack_expected) {
 
     if ( debug_ ) {
-      cerr << "UPDATE_WINDOW last_ack_recved_: " << last_ack_recved_ << ","
+      cerr << "UPDATE_WINDOW ack_expected: " << ack_expected << ","
       << "sequence_number_acked" << sequence_number_acked;
     }
 
-    if (sequence_number_acked == last_ack_recved_) {
+    if (sequence_number_acked == ack_expected) {
+      the_window_size = the_window_size + 0.3;
+      //last_ack_recved_ = sequence_number_acked;
+      dup_ack_count_ = 0;
+    } else if (sequence_number_acked > ack_expected) {
       dup_ack_count_++;
       if (dup_ack_count_ >= DUP_ACK_COUNT) {
         the_window_size = the_window_size/2;
         dup_ack_count_ = 0;
       }
-    } else if (sequence_number_acked > last_ack_recved_) {
-      the_window_size++;
-      last_ack_recved_ = sequence_number_acked;
-      dup_ack_count_ = 0;
-    } 
-
+    }
 }
+
 
 /* A datagram was sent */
 void Controller::datagram_was_sent( const uint64_t sequence_number,
@@ -69,8 +66,9 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 			       /* when the acknowledged datagram was sent (sender's clock) */
 			       const uint64_t recv_timestamp_acked,
 			       /* when the acknowledged datagram was received (receiver's clock)*/
-			       const uint64_t timestamp_ack_received )
+			       const uint64_t timestamp_ack_received,
                                /* when the ack was received (by sender) */
+			       const uint64_t ack_expected)
 {
   /* Default: take no action */
 
@@ -82,7 +80,7 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 	 << endl;
   }
 
-  update_window(sequence_number_acked);
+  update_window(sequence_number_acked, ack_expected);
 }
 
 /* How long to wait (in milliseconds) if there are no acks
