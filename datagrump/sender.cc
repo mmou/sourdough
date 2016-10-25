@@ -84,15 +84,17 @@ void DatagrumpSender::got_ack( const uint64_t timestamp,
     throw runtime_error( "sender got something other than an ack from the receiver" );
   }
 
-  /* Update sender's counter */
-  next_ack_expected_ = max( next_ack_expected_,
-			    ack.header.ack_sequence_number + 1 );
-
   /* Inform congestion controller */
   controller_.ack_received( ack.header.ack_sequence_number,
 			    ack.header.ack_send_timestamp,
 			    ack.header.ack_recv_timestamp,
-			    timestamp );
+			    timestamp,
+          next_ack_expected_);
+
+  /* Update sender's counter */
+  next_ack_expected_ = max( next_ack_expected_,
+          ack.header.ack_sequence_number + 1 );
+
 }
 
 void DatagrumpSender::send_datagram( void )
