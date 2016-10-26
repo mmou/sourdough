@@ -8,7 +8,6 @@ using namespace std;
 /* Default constructor */
 Controller::Controller( const bool debug )
   : debug_( debug )
-  , last_ack_recved_(0)
   , this_tick(0)
   , this_pkt_count(0)
   , current_time(0)  
@@ -36,21 +35,21 @@ void Controller::update_window(uint64_t sequence_number_acked,
 {
 
     if ( debug_ ) {
-      cerr << "UPDATE_WINDOW last_ack_recved_: " << last_ack_recved_ << ","
-      << "sequence_number_acked" << sequence_number_acked;
-    }
-
-
-    current_time = timestamp_ack_received;
-    current_tick = static_cast<int>(current_time % TICK_MS);
-    if (this_tick == current_pick) {
-      this_pkt_count ++;
-    } else {
-      this_tick = current_pick;
-      this_pkt_count ++;
-    }
+    	cerr << sequence_number_acked << " and " << ack_expected; 
+	}
 
     
+    uint64_t current_time = timestamp_ack_received;
+    unsigned int current_tick = static_cast<int>(current_time % TICK_MS);
+    if (this_tick == current_tick) {
+      this_pkt_count ++;
+    
+    } else {
+      this_tick = current_tick;
+      this_pkt_count ++;
+    }
+
+    the_window_size = the_window_size + this_pkt_count;    
 
 /*
     if (sequence_number_acked == ack_expected) {
