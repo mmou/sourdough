@@ -9,6 +9,9 @@ using namespace std;
 Controller::Controller( const bool debug )
   : debug_( debug )
   , last_ack_recved_(0)
+  , this_tick(0)
+  , this_pkt_count(0)
+  , current_time(0)  
   , dup_ack_count_(0)
   , the_window_size(10)
 { }
@@ -27,16 +30,31 @@ unsigned int Controller::window_size( void )
   return the_window_size;
 }
 
-void Controller::update_window(uint64_t sequence_number_acked, uint64_t ack_expected) {
+void Controller::update_window(uint64_t sequence_number_acked, 
+                  uint64_t ack_expected, 
+                  const uint64_t timestamp_ack_received) 
+{
 
     if ( debug_ ) {
       cerr << "UPDATE_WINDOW last_ack_recved_: " << last_ack_recved_ << ","
       << "sequence_number_acked" << sequence_number_acked;
     }
 
+
+    current_time = timestamp_ack_received;
+    current_tick = static_cast<int>(current_time % TICK_MS);
+    if (this_tick == current_pick) {
+      this_pkt_count ++;
+    } else {
+      this_tick = current_pick;
+      this_pkt_count ++;
+    }
+
+    
+
+/*
     if (sequence_number_acked == ack_expected) {
       the_window_size++;
-      //last_ack_recved_ = sequence_number_acked;
       dup_ack_count_ = 0;
     } else if (sequence_number_acked > ack_expected) {
       dup_ack_count_++;
@@ -45,7 +63,7 @@ void Controller::update_window(uint64_t sequence_number_acked, uint64_t ack_expe
         dup_ack_count_ = 0;
       }
     } 
-
+*/
 }
 
 /* A datagram was sent */
@@ -83,12 +101,12 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
 	 << endl;
   }
 
-  update_window(sequence_number_acked, ack_expected);
+  update_window(sequence_number_acked, ack_expected, timestamp_ack_received);
 }
 
 /* How long to wait (in milliseconds) if there are no acks
    before sending one more datagram */
 unsigned int Controller::timeout_ms( void )
 {
-  return 500; /* timeout of one second */
+  return TICK_MS; /* timeout of one second */
 }

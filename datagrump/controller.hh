@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #define DUP_ACK_COUNT  1
+#define TICK_MS 500
 
 /* Congestion controller interface */
 
@@ -13,6 +14,11 @@ private:
   bool debug_; /* Enables debugging output */
 
   /* Add member variables here */
+  uint64_t this_tick;
+  unsigned this_pkt_count;
+  uint64_t current_time;
+  uint64_t dup_ack_count_;
+  unsigned int the_window_size;
 
 public:
   /* Public interface for the congestion controller */

@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <stdlib.h> // rand
 
 #include "socket.hh"
 #include "contest_message.hh"
@@ -62,7 +63,7 @@ DatagrumpSender::DatagrumpSender( const char * const host,
 				  const char * const port,
 				  const bool debug )
   : socket_(),
-    controller_( debug ),
+    controller_( true ), // debug
     sequence_number_( 0 ),
     next_ack_expected_( 0 )
 {
@@ -137,10 +138,13 @@ int DatagrumpSender::loop( void )
      process it and inform the controller
      (by using the sender's got_ack method) */
   poller.add_action( Action( socket_, Direction::In, [&] () {
+
 	const UDPSocket::received_datagram recd = socket_.recv();
 	const ContestMessage ack  = recd.payload;
 	got_ack( recd.timestamp, ack );
 	return ResultType::Continue;
+
+
       } ) );
 
   /* Run these two rules forever */
