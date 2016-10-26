@@ -88,7 +88,7 @@ void DatagrumpSender::got_ack( const uint64_t timestamp,
   /* Inform congestion controller */
   controller_.ack_received( ack.header.ack_sequence_number,
 			    ack.header.ack_send_timestamp,
-			    ack.header.ack_recv_timestamp,
+			    //ack.header.ack_recv_timestamp,
 			    timestamp,
           next_ack_expected_);
 
@@ -142,14 +142,20 @@ int DatagrumpSender::loop( void )
 	const UDPSocket::received_datagram recd = socket_.recv();
 	const ContestMessage ack  = recd.payload;
 	got_ack( recd.timestamp, ack );
+
 	return ResultType::Continue;
 
 
       } ) );
 
   /* Run these two rules forever */
+  unsigned int tick = controller_.timeout_ms();
+  time_t prev_time = time(0);
   while ( true ) {
-    const auto ret = poller.poll( controller_.timeout_ms() );
+    time_t now_time = time(0);
+    controller_.update_window(prev_time, now_time);
+
+    const auto ret = poller.poll( tick );
     if ( ret.result == PollResult::Exit ) {
       return ret.exit_status;
     } else if ( ret.result == PollResult::Timeout ) {

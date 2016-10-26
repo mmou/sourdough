@@ -14,12 +14,12 @@ class Controller
 private:
   bool debug_; /* Enables debugging output */
 
-  /* Add member variables here */
-  uint64_t this_tick;
-  unsigned this_pkt_count;
-  uint64_t current_time;
-  uint64_t dup_ack_count_;
+  /* Add member variables here */ 
   unsigned int the_window_size;
+  time_t prev_time;
+  time_t now_time;
+  uint64_t rtt;
+  uint64_t num_packets;
 
 
 public:
@@ -34,7 +34,7 @@ public:
   unsigned int window_size( void );
 
   /* Update window size */
-  void update_window(uint64_t sequence_number_acked, uint64_t ack_expected, const uint64_t timestamp_ack_received);
+  void update_window(time_t prev_time, time_t now_time);
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
@@ -43,9 +43,9 @@ public:
   /* An ack was received */
   void ack_received( const uint64_t sequence_number_acked,
 		     const uint64_t send_timestamp_acked,
-		     const uint64_t recv_timestamp_acked,
+		     //const uint64_t recv_timestamp_acked,
 		     const uint64_t timestamp_ack_received,
-	             const uint64_t ack_expected);
+         const uint64_t ack_expected);
 
 
   /* How long to wait (in milliseconds) if there are no acks
