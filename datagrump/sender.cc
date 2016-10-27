@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdlib.h> // rand
+#include <chrono>
+#include <ratio>
 
 #include "socket.hh"
 #include "contest_message.hh"
@@ -150,17 +152,31 @@ int DatagrumpSender::loop( void )
 
   /* Run these two rules forever */
   unsigned int tick = controller_.timeout_ms();
-  time_t prev_time = time(0);
+
+
+  auto prev_time = std::chrono::high_resolution_clock::now();
+  auto now_time = std::chrono::high_resolution_clock::now();
+  int wait = 0;
   while ( true ) {
-    time_t now_time = time(0);
-    controller_.update_window(prev_time, now_time);
+    now_time = std::chrono::high_resolution_clock::now();
+    auto diff_time = std::chrono::duration_cast<std::chrono::milliseconds>(now_time - prev_time).count();
+
+    cerr << diff_time << ", " << tick;
+    if (diff_time >= tick) {
+      controller_.update_window(diff_time);
+      prev_time = now_time;
+    }
 
     const auto ret = poller.poll( tick );
     if ( ret.result == PollResult::Exit ) {
       return ret.exit_status;
     } else if ( ret.result == PollResult::Timeout ) {
       /* After a timeout, send one datagram to try to get things moving again */
-      send_datagram();
+      wait++;
+      if (wait == 3) {
+        send_datagram();
+        wait = 0;
+      }
     }
   }
 }

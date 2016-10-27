@@ -2,6 +2,8 @@
 
 #include "controller.hh"
 #include "timestamp.hh"
+#include <chrono>
+#include <ratio>
 
 using namespace std;
 
@@ -13,7 +15,7 @@ Controller::Controller( const bool debug )
 
   , prev_time(0)
   , now_time(0)
-  , rtt(0)
+  , rtt(100)
   , num_packets(0)
 { }
 
@@ -29,16 +31,12 @@ unsigned int Controller::window_size( void )
   return the_window_size;
 }
 
-void Controller::update_window(time_t this_prev_time, time_t this_now_time) {
-  if (now_time == this_prev_time) {
-  
-    prev_time = this_prev_time;
-    now_time = this_now_time;
-    num_packets = num_packets;
+void Controller::update_window(auto diff_time) {
+  cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "diff_time: " << diff_time;
 
   // TODO: update window size based on ...!!!
-  the_window_size = the_window_size*0.5 + num_packets/(now_time-prev_time)*rtt; 
-  }
+  the_window_size = 0.8*the_window_size + 0.2*num_packets/(diff_time)*rtt;
+  num_packets = 0; 
 }
 
 /* A datagram was sent */

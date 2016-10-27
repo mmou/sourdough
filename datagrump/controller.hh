@@ -4,7 +4,7 @@
 #include <cstdint>
 
 #define DUP_ACK_COUNT  1
-#define TICK_MS 500
+#define TICK_MS 1000
 
 
 /* Congestion controller interface */
@@ -34,7 +34,7 @@ public:
   unsigned int window_size( void );
 
   /* Update window size */
-  void update_window(time_t prev_time, time_t now_time);
+  void update_window(auto diff_time);
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,
