@@ -34,9 +34,13 @@ unsigned int Controller::window_size( void )
 void Controller::update_window() {
   cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "\n";
 
-  if (num_packets > 1.1*the_window_size || rtt < 2*TICK_MS) {
+  if (num_packets < 2 && the_window_size < 5 && rtt <= 2*TICK_MS) {
+    // restart situation
+    the_window_size = 30;
+  }
+  if (num_packets >= 1.1*the_window_size || rtt <= 2*TICK_MS) {
     the_window_size = the_window_size*0.7 + num_packets*0.3;
-  } else if (num_packets < 0.8*the_window_size || rtt > 5*TICK_MS) {
+  } else if (num_packets <= 0.8*the_window_size || rtt >= 5*TICK_MS) {
     the_window_size = the_window_size*0.3 + num_packets*0.3;
   }
 
