@@ -2,6 +2,7 @@
 #define CONTROLLER_HH
 
 #include <cstdint>
+#include <chrono>
 
 #define DUP_ACK_COUNT  1
 #define TICK_MS 1000
@@ -34,7 +35,7 @@ public:
   unsigned int window_size( void );
 
   /* Update window size */
-  void update_window(auto diff_time);
+  void update_window();
 
   /* A datagram was sent */
   void datagram_was_sent( const uint64_t sequence_number,

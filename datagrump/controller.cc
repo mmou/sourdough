@@ -11,7 +11,7 @@ using namespace std;
 Controller::Controller( const bool debug )
   : debug_( debug )
 
-  , the_window_size(50)
+  , the_window_size(10)
 
   , prev_time(0)
   , now_time(0)
@@ -31,11 +31,15 @@ unsigned int Controller::window_size( void )
   return the_window_size;
 }
 
-void Controller::update_window(auto diff_time) {
-  cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "diff_time: " << diff_time;
+void Controller::update_window() {
+  cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "\n";
 
-  // TODO: update window size based on ...!!!
-  the_window_size = 0.8*the_window_size + 0.2*num_packets/(diff_time)*rtt;
+
+  if (num_packets > 0) {
+    the_window_size = the_window_size*0.7 + num_packets*0.15;
+  } else {
+    the_window_size = 0.3*the_window_size;
+  }
   num_packets = 0; 
 }
 
@@ -80,10 +84,12 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
   }
 */
 
-  rtt = rtt*0.8 + 0.2*(timestamp_ack_received - send_timestamp_acked);
-  
+  uint64_t this_rtt = timestamp_ack_received - send_timestamp_acked;
+  rtt = rtt*0.8 + 0.2*this_rtt;
   if (ack_expected == sequence_number_acked) {
-    num_packets++;
+    if (this_rtt < std::min(static_cast<unsigned int>(rtt*2), static_cast<unsigned int>(300))) {
+      num_packets++;
+    }
   }
 }
 

@@ -65,7 +65,7 @@ DatagrumpSender::DatagrumpSender( const char * const host,
 				  const char * const port,
 				  const bool debug )
   : socket_(),
-    controller_( true || debug), // debug
+    controller_( debug), // debug
     sequence_number_( 0 ),
     next_ack_expected_( 0 )
 {
@@ -159,11 +159,10 @@ int DatagrumpSender::loop( void )
   int wait = 0;
   while ( true ) {
     now_time = std::chrono::high_resolution_clock::now();
-    auto diff_time = std::chrono::duration_cast<std::chrono::milliseconds>(now_time - prev_time).count();
+    unsigned int diff_time = std::chrono::duration_cast<std::chrono::milliseconds>(now_time - prev_time).count();
 
-    cerr << diff_time << ", " << tick;
     if (diff_time >= tick) {
-      controller_.update_window(diff_time);
+      controller_.update_window();
       prev_time = now_time;
     }
 
