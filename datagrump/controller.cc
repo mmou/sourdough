@@ -59,8 +59,6 @@ void Controller::datagram_was_sent( const uint64_t sequence_number,
 	 << " sent datagram " << sequence_number << endl;
   }
 
-  // TODO: update model of available bandwidth, rtt
-
 }
 
 /* An ack was received */
@@ -75,27 +73,21 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
              const uint64_t ack_expected)
 {
 
-/*
   if ( debug_ ) {
     cerr << "At time " << timestamp_ack_received
 	 << " received ack for datagram " << sequence_number_acked
 	 << " (send @ time " << send_timestamp_acked
-	 << ", received @ time " << recv_timestamp_acked << " by receiver's clock)"
 	 << endl;
-
-    cerr << timestamp_ack_received << ": " << timestamp_ack_received - send_timestamp_acked << "; " << sequence_number_acked << ", " << ack_expected << "\n";
-
   }
-*/
 
   // when ack is received, 
   uint64_t this_rtt = timestamp_ack_received - send_timestamp_acked;
   rtt = rtt*0.8 + 0.2*this_rtt;  
   
   if (ack_expected == sequence_number_acked) {
-    if (this_rtt < std::min(static_cast<unsigned int>(rtt*2), static_cast<unsigned int>(300))) {
+   // if (this_rtt < std::min(static_cast<unsigned int>(rtt*2), static_cast<unsigned int>(300))) {
       num_packets++;
-    }
+   // }
   }
 
 }

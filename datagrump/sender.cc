@@ -147,12 +147,10 @@ int DatagrumpSender::loop( void )
 
 	return ResultType::Continue;
 
-
       } ) );
 
   /* Run these two rules forever */
   unsigned int tick = controller_.timeout_ms();
-
 
   auto prev_time = std::chrono::high_resolution_clock::now();
   auto now_time = std::chrono::high_resolution_clock::now();
