@@ -170,7 +170,7 @@ int DatagrumpSender::loop( void )
     } else if ( ret.result == PollResult::Timeout ) {
       /* After a timeout, send one datagram to try to get things moving again */
       wait++;
-      if (wait == 3) {
+      if (wait == 1) {
         send_datagram();
         wait = 0;
       }
