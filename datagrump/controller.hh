@@ -5,7 +5,7 @@
 #include <chrono>
 
 #define DUP_ACK_COUNT  1
-#define TICK_MS 1000
+#define TICK_MS 100
 
 
 /* Congestion controller interface */

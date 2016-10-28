@@ -65,7 +65,7 @@ DatagrumpSender::DatagrumpSender( const char * const host,
 				  const char * const port,
 				  const bool debug )
   : socket_(),
-    controller_( debug), // debug
+    controller_(debug), // debug
     sequence_number_( 0 ),
     next_ack_expected_( 0 )
 {

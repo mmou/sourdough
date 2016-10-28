@@ -11,8 +11,7 @@ using namespace std;
 Controller::Controller( const bool debug )
   : debug_( debug )
 
-  , the_window_size(10)
-
+  , the_window_size(50)
   , prev_time(0)
   , now_time(0)
   , rtt(100)
@@ -28,18 +27,19 @@ unsigned int Controller::window_size( void )
 	 << " window size is " << the_window_size << endl;
   }
 
+  // if (num_packets == 0 ) { }
   return the_window_size;
 }
 
 void Controller::update_window() {
   cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "\n";
 
-
-  if (num_packets > 0) {
-    the_window_size = the_window_size*0.7 + num_packets*0.15;
-  } else {
-    the_window_size = 0.3*the_window_size;
+  if (num_packets > 1.1*the_window_size || rtt < 2*TICK_MS) {
+    the_window_size = the_window_size*0.7 + num_packets*0.3;
+  } else if (num_packets < 0.8*the_window_size || rtt > 5*TICK_MS) {
+    the_window_size = the_window_size*0.3 + num_packets*0.3;
   }
+
   num_packets = 0; 
 }
 
@@ -84,13 +84,16 @@ void Controller::ack_received( const uint64_t sequence_number_acked,
   }
 */
 
+  // when ack is received, 
   uint64_t this_rtt = timestamp_ack_received - send_timestamp_acked;
-  rtt = rtt*0.8 + 0.2*this_rtt;
+  rtt = rtt*0.8 + 0.2*this_rtt;  
+  
   if (ack_expected == sequence_number_acked) {
     if (this_rtt < std::min(static_cast<unsigned int>(rtt*2), static_cast<unsigned int>(300))) {
       num_packets++;
     }
   }
+
 }
 
 /* How long to wait (in milliseconds) if there are no acks
