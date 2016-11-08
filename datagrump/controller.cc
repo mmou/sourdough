@@ -32,7 +32,6 @@ unsigned int Controller::window_size( void )
 }
 
 void Controller::update_window() {
-  cerr << time(0) << "the_window_size: " << the_window_size << ", num_packets: " << num_packets << ", rtt: " << rtt << "\n";
 
   if (num_packets < 2 && the_window_size < 5 && rtt <= 2*TICK_MS) {
     // restart situation
